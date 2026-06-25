@@ -1,0 +1,260 @@
+// Prisma schema for ROVE Hire
+// Database: Supabase PostgreSQL (used as plain Postgres — no Supabase SDK)
+// Auth: Auth.js v5 with JWT strategy (no Session table needed)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Supabase requires connection pooling for serverless (Prisma uses PgBouncer)
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+
+// Internal HR users only. No self-registration.
+// Seeded via prisma/seed.ts with bcrypt-hashed password.
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String   // bcrypt hash
+  role      UserRole @default(HR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  createdJobs         Job[]
+  createdCandidates   Candidate[]
+  scheduledInterviews Interview[]
+  generatedOffers     OfferDocument[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  HR
+}
+
+// ─────────────────────────────────────────────
+// JOBS
+// ─────────────────────────────────────────────
+
+model Job {
+  id             String         @id @default(cuid())
+  title          String
+  description    String         // markdown text
+  requiredSkills String[]       // Postgres text array
+  status         JobStatus      @default(OPEN)
+
+  // Optional metadata — makes the UI and seed data feel like a real ATS
+  department     String?        // e.g. "Engineering", "Design", "Product"
+  location       String?        // e.g. "New York, NY (Hybrid)", "Remote"
+  employmentType EmploymentType @default(FULL_TIME)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  candidates Candidate[]
+
+  @@map("jobs")
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+// ─────────────────────────────────────────────
+// CANDIDATES
+// ─────────────────────────────────────────────
+
+model Candidate {
+  id               String          @id @default(cuid())
+  name             String
+  email            String          @unique
+  status           CandidateStatus @default(APPLIED)
+  rejectionReason  String?
+
+  // Resume stored in Vercel Blob; this field holds the blob URL
+  resumeUrl        String?
+  resumeFilename   String?         // original filename for display
+
+  // Fields filled by candidate via magic link (feature 4)
+  phone            String?
+  location         String?
+  currentRole      String?
+  noticePeriod     String?
+  salaryExpectation String?
+  linkedinUrl      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  magicLink       MagicLink?
+  interviews      Interview[]
+  offerDocuments  OfferDocument[]
+  timelineEvents  TimelineEvent[]
+
+  @@index([status])
+  @@index([jobId])
+  @@map("candidates")
+}
+
+enum CandidateStatus {
+  APPLIED
+  FORM_SUBMITTED
+  INTERVIEW_SCHEDULED
+  OFFER_SENT
+  HIRED
+  REJECTED
+}
+
+// ─────────────────────────────────────────────
+// MAGIC LINKS  (candidate application tokens)
+// ─────────────────────────────────────────────
+
+model MagicLink {
+  id          String    @id @default(cuid())
+  token       String    @unique  // crypto.randomBytes(32).toString('hex')
+  expiresAt   DateTime           // createdAt + 14 days
+  usedAt      DateTime?          // set on first submission; null = still valid
+
+  candidateId String    @unique  // one magic link per candidate
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("magic_links")
+}
+
+// ─────────────────────────────────────────────
+// INTERVIEWS
+// ─────────────────────────────────────────────
+
+model Interview {
+  id              String          @id @default(cuid())
+  interviewType   InterviewType
+  scheduledAt     DateTime
+  interviewerName String
+  notes           String?
+
+  status          InterviewStatus @default(SCHEDULED)
+
+  // Feedback fields (filled when status → COMPLETED)
+  recommendation  Recommendation?
+  feedbackNotes   String?
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  scheduledById String
+  scheduledBy   User   @relation(fields: [scheduledById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([candidateId])
+  @@index([scheduledAt])
+  @@map("interviews")
+}
+
+enum InterviewType {
+  SCREENING
+  TECHNICAL
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+}
+
+enum Recommendation {
+  HIRE
+  NO_HIRE
+  MAYBE
+}
+
+// ─────────────────────────────────────────────
+// OFFER DOCUMENTS
+// ─────────────────────────────────────────────
+
+model OfferDocument {
+  id               String   @id @default(cuid())
+
+  // Form fields HR fills in before generating
+  roleTitle        String
+  salaryCurrency   String   // e.g. "USD", "GBP"
+  salaryAmount     Decimal  @db.Decimal(12, 2)
+  startDate        DateTime @db.Date
+  reportingManager String
+  workLocation     String
+
+  // Vercel Blob URLs for the generated PDFs
+  offerPdfUrl      String?
+  ndaPdfUrl        String?
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  generatedById String
+  generatedBy   User   @relation(fields: [generatedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("offer_documents")
+}
+
+// ─────────────────────────────────────────────
+// TIMELINE EVENTS  (append-only audit log)
+// ─────────────────────────────────────────────
+
+model TimelineEvent {
+  id          String            @id @default(cuid())
+  eventType   TimelineEventType
+  payload     Json              @default("{}")  // flexible per-event metadata
+  actorName   String?           // HR user name, or null for candidate self-actions
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([candidateId])
+  @@map("timeline_events")
+}
+
+enum TimelineEventType {
+  CANDIDATE_CREATED
+  FORM_SUBMITTED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  OFFER_GENERATED
+  STATUS_CHANGED
+  CANDIDATE_HIRED
+  CANDIDATE_REJECTED
+}

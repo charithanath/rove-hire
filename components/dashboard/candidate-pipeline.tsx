@@ -101,12 +101,12 @@ export function CandidatePipeline({ initialCandidates }: { initialCandidates: Pi
               placeholder="Search candidates…"
               value={q}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-8 w-44 rounded-lg border border-border bg-[var(--color-bg)] pl-8 pr-7 text-[13px] text-text-primary placeholder:text-text-disabled focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/50 transition-all"
+              className="h-9 w-44 rounded-md border border-border bg-surface pl-8 pr-7 text-sm text-text-primary placeholder:text-text-disabled focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-bg transition-colors"
               aria-label="Search candidates"
             />
             {q && (
               <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-disabled hover:text-text-muted transition-colors" aria-label="Clear">
-                <X className="h-3 w-3" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -117,14 +117,14 @@ export function CandidatePipeline({ initialCandidates }: { initialCandidates: Pi
             <select
               value={status}
               onChange={(e) => handleStatusChange(e.target.value)}
-              className="h-8 appearance-none rounded-lg border border-border bg-[var(--color-bg)] pl-8 pr-7 text-[13px] text-text-primary cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/50 transition-all"
+              className="h-9 appearance-none rounded-md border border-border bg-surface pl-8 pr-8 text-sm text-text-primary cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-bg transition-colors"
               aria-label="Filter by status"
             >
               {STATUS_FILTERS.map((f) => (
                 <option key={f.value} value={f.value}>{f.label}</option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden="true" />
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden="true" />
           </div>
         </div>
       </div>

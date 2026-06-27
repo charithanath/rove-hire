@@ -8,6 +8,10 @@ export const metadata: Metadata = {
     template: "%s | ROVE Hire",
   },
   description: "Internal recruitment management for ROVE",
+  icons: {
+    icon: "/rove-logo.jpg",
+    apple: "/rove-logo.jpg",
+  },
 };
 
 export default function RootLayout({

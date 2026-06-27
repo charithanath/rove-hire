@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
+import type { ReactElement, JSXElementConstructor } from "react";
 import { put } from "@vercel/blob";
 import { getAuthSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
@@ -79,7 +80,7 @@ export async function POST(
         generatedDate,
         logoBase64,
         signerName:       session.user.name ?? "HR Team",
-      })
+      }) as ReactElement<DocumentProps, JSXElementConstructor<DocumentProps>>
     );
 
     // ── Render NDA PDF ─────────────────────────────────────────────────────
@@ -89,7 +90,7 @@ export async function POST(
         generatedDate,
         effectiveDate: generatedDate,
         logoBase64,
-      })
+      }) as ReactElement<DocumentProps, JSXElementConstructor<DocumentProps>>
     );
 
     // ── Upload both to Vercel Blob ─────────────────────────────────────────

@@ -15,7 +15,7 @@ interface PipelineCandidate {
   name:      string;
   email:     string;
   status:    CandidateStatus;
-  updatedAt: string;
+  updatedAt: Date | string;
   job:       { id: string; title: string; department: string | null };
 }
 

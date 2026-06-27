@@ -79,14 +79,3 @@ export async function getRecentActivity() {
   });
 }
 
-// ── Recent candidates (kept for backwards compat) ─────────────────────────────
-
-export async function getRecentCandidates() {
-  return prisma.candidate.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 5,
-    include: {
-      job: { select: { id: true, title: true, department: true } },
-    },
-  });
-}

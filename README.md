@@ -76,11 +76,11 @@ If I had another two days:
 
 **Single HR user with no roles** — the current system has one HR account. A production version would need role-based access (recruiter vs. hiring manager vs. admin) and the ability to create additional HR accounts without touching the database directly.
 
-**Offer PDF seeding gap** — as noted above, the seeded "Offer Sent" candidate has null PDF URLs. This is fine for the demo if you regenerate through the app, but would need a proper solution for production (e.g., generate PDFs as part of the seed script using a pre-configured Blob token).
+**Offer PDF seeding gap** — the seeded "Offer Sent" candidate (Aisha Malik) has an offer document record but PDF URLs are null at seed time since Vercel Blob is not available during `db:seed`. After deployment, open her profile and click "Generate Offer" once to create real downloadable PDFs. A production seed script would need a pre-configured Blob token to generate PDFs programmatically.
 
 **No rate limiting on the public magic link endpoint** — `POST /api/apply/[token]` is fully public. In production it should be rate-limited (e.g., 5 requests/minute per IP) to prevent abuse.
 
-**`AUTH_SECRET` must be rotated** — the demo uses a placeholder secret. Any deployment should generate a fresh secret with `openssl rand -base64 32` before going live.
+**`AUTH_SECRET` must be rotated before sharing** — ensure the secret set in Vercel was generated with `openssl rand -base64 32` and is not reused across projects.
 
 **Synchronous PDF generation** — as noted in the tech stack section, blocking the API response on `renderToBuffer()` is acceptable for a demo but would need to move to a background queue for production.
 
@@ -117,6 +117,6 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with `hr@rovehir
 | `DATABASE_URL` | Supabase Postgres connection (pooler, port 6543) |
 | `DIRECT_URL` | Supabase Postgres direct connection (migrations, port 5432) |
 | `AUTH_SECRET` | Auth.js JWT signing secret (`openssl rand -base64 32`) |
-| `AUTH_URL` | App base URL (e.g. `https://rove-hire.vercel.app`) |
+| `AUTH_URL` | App base URL (e.g. `https://rove-hire-ashy.vercel.app`) |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token for file storage |
 | `NEXT_PUBLIC_APP_URL` | Used to construct magic link URLs |

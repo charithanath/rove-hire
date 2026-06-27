@@ -2,7 +2,7 @@
 
 Internal recruitment management tool for ROVE — built as a take-home assignment.
 
-**Live URL:** `https://rove-hire.vercel.app` *(replace with your deployed URL)*  
+**Live URL:** `https://rove-hire-ashy.vercel.app`  
 **Demo video:** *(add Loom link here)*
 
 ---

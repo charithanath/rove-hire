@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 
@@ -7,6 +8,7 @@ interface KpiCardProps {
   icon:         LucideIcon;
   description?: string;
   accent?:      "default" | "blue" | "violet" | "amber" | "green";
+  href?:        string;
 }
 
 const ACCENT: Record<
@@ -20,14 +22,11 @@ const ACCENT: Record<
   green:   { icon: "bg-emerald-50 text-emerald-600", value: "text-emerald-700", border: "border-l-emerald-500" },
 };
 
-export function KpiCard({ title, value, icon: Icon, description, accent = "default" }: KpiCardProps) {
+export function KpiCard({ title, value, icon: Icon, description, accent = "default", href }: KpiCardProps) {
   const a = ACCENT[accent];
-  return (
-    <div className={cn(
-      "relative overflow-hidden rounded-xl border border-border border-l-[3px] bg-surface px-5 py-4",
-      "transition-all duration-150 hover:shadow-md hover:-translate-y-px",
-      a.border
-    )}>
+
+  const inner = (
+    <>
       <div className="flex items-start justify-between gap-3 mb-3">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-text-muted">
           {title}
@@ -42,6 +41,23 @@ export function KpiCard({ title, value, icon: Icon, description, accent = "defau
       {description && (
         <p className="text-[11px] text-text-muted">{description}</p>
       )}
-    </div>
+    </>
   );
+
+  const baseClass = cn(
+    "relative overflow-hidden rounded-xl border border-border border-l-[3px] bg-surface px-5 py-4",
+    "transition-all duration-150 hover:shadow-md hover:-translate-y-px",
+    href && "cursor-pointer",
+    a.border
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={baseClass}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return <div className={baseClass}>{inner}</div>;
 }

@@ -57,10 +57,10 @@ export default async function DashboardPage() {
 
         {/* KPI strip */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <KpiCard title="Open Jobs"            value={stats.openJobs}           icon={Briefcase}    description="Active job openings"  accent="blue"   />
-          <KpiCard title="In Pipeline"          value={stats.totalCandidates}    icon={Users}        description="Active candidates"    accent="violet" />
-          <KpiCard title="Interviews This Week" value={stats.interviewsThisWeek} icon={CalendarDays} description="Mon – Sun"            accent="amber"  />
-          <KpiCard title="Offers Sent"          value={stats.offersSent}         icon={FileOutput}   description="Offer sent or hired"  accent="green"  />
+          <KpiCard title="Open Jobs"            value={stats.openJobs}           icon={Briefcase}    description="Active job openings"  accent="blue"   href="/jobs?status=OPEN"      />
+          <KpiCard title="In Pipeline"          value={stats.totalCandidates}    icon={Users}        description="Active candidates"    accent="violet" href="/candidates"             />
+          <KpiCard title="Interviews This Week" value={stats.interviewsThisWeek} icon={CalendarDays} description="Mon – Sun"            accent="amber"  href="/interviews"            />
+          <KpiCard title="Offers Sent"          value={stats.offersSent}         icon={FileOutput}   description="Offer sent or hired"  accent="green"  href="/candidates"            />
         </div>
 
         {/* Main two-column grid */}

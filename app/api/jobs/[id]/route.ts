@@ -55,15 +55,10 @@ export async function PATCH(
       );
     }
 
-    // Merge optional metadata fields not in the Zod schema
-    const updateData: Record<string, unknown> = { ...parsed.data };
-    if ("department"     in body) updateData.department     = body.department     || null;
-    if ("location"       in body) updateData.location       = body.location       || null;
-    if ("employmentType" in body) updateData.employmentType = body.employmentType || "FULL_TIME";
-
+    // All fields come from the Zod-validated parsed.data — no need to read from body directly
     const job = await prisma.job.update({
       where: { id },
-      data: updateData,
+      data: parsed.data,
       include: { _count: { select: { candidates: true } } },
     });
 

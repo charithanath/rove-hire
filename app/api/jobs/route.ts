@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { title, description, requiredSkills, status, ...rest } = parsed.data;
+    const { title, description, requiredSkills, status, department, location, employmentType } = parsed.data;
 
     const job = await prisma.job.create({
       data: {
@@ -56,9 +56,9 @@ export async function POST(req: NextRequest) {
         description,
         requiredSkills,
         status,
-        department:     (body.department     as string) || null,
-        location:       (body.location       as string) || null,
-        employmentType: (body.employmentType as string) || "FULL_TIME",
+        department:     department || null,
+        location:       location   || null,
+        employmentType: employmentType ?? "FULL_TIME",
         createdById: session.user.id,
       },
       include: { _count: { select: { candidates: true } } },

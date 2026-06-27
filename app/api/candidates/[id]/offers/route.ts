@@ -80,7 +80,7 @@ export async function POST(
         generatedDate,
         logoBase64,
         signerName:       session.user.name ?? "HR Team",
-      }) as ReactElement<DocumentProps, JSXElementConstructor<DocumentProps>>
+      }) as unknown as ReactElement<DocumentProps, JSXElementConstructor<DocumentProps>>
     );
 
     // ── Render NDA PDF ─────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ export async function POST(
         generatedDate,
         effectiveDate: generatedDate,
         logoBase64,
-      }) as ReactElement<DocumentProps, JSXElementConstructor<DocumentProps>>
+      }) as unknown as ReactElement<DocumentProps, JSXElementConstructor<DocumentProps>>
     );
 
     // ── Upload both to Vercel Blob ─────────────────────────────────────────

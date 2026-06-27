@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Briefcase, Users, CalendarDays, FileOutput } from "lucide-react";
+import { Briefcase, Users, CalendarDays } from "lucide-react";
 import { requireAuth } from "@/lib/auth-helpers";
 import {
   getKpiStats,
@@ -56,11 +56,10 @@ export default async function DashboardPage() {
       <div className="flex-1 px-6 py-5 space-y-5 overflow-y-auto">
 
         {/* KPI strip */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <KpiCard title="Open Jobs"            value={stats.openJobs}           icon={Briefcase}    description="Active job openings"  accent="blue"   href="/jobs"         />
-          <KpiCard title="In Pipeline"          value={stats.totalCandidates}    icon={Users}        description="Active candidates"    accent="violet" href="/candidates"    />
-          <KpiCard title="Interviews This Week" value={stats.interviewsThisWeek} icon={CalendarDays} description="Mon – Sun"            accent="amber"  href="/interviews"   />
-          <KpiCard title="Offers Sent"          value={stats.offersSent}         icon={FileOutput}   description="Offer sent or hired"  accent="green"  href="/candidates"   />
+        <div className="grid grid-cols-3 gap-3">
+          <KpiCard title="Open Jobs"            value={stats.openJobs}           icon={Briefcase}    description="Active job openings"  accent="blue"   href="/jobs"       />
+          <KpiCard title="In Pipeline"          value={stats.totalCandidates}    icon={Users}        description="Active candidates"    accent="violet" href="/candidates" />
+          <KpiCard title="Interviews This Week" value={stats.interviewsThisWeek} icon={CalendarDays} description="Mon – Sun"            accent="amber"  href="/interviews" />
         </div>
 
         {/* Main two-column grid */}

@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Users, Search, X, ChevronLeft, ChevronRight, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Users, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { StatusBadge } from "@/components/candidates/status-badge";
 import { formatRelative, cn, STATUS_LABELS } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
+import { DropdownSelect } from "@/components/ui/dropdown-select";
 import type { CandidateStatus } from "@prisma/client";
 
 const PAGE_SIZE = 10;
@@ -111,21 +112,13 @@ export function CandidatePipeline({ initialCandidates }: { initialCandidates: Pi
             )}
           </div>
 
-          {/* Status filter */}
-          <div className="relative">
-            <SlidersHorizontal className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted" aria-hidden="true" />
-            <select
-              value={status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="h-9 appearance-none rounded-md border border-border bg-surface pl-8 pr-8 text-sm text-text-primary cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-bg transition-colors"
-              aria-label="Filter by status"
-            >
-              {STATUS_FILTERS.map((f) => (
-                <option key={f.value} value={f.value}>{f.label}</option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden="true" />
-          </div>
+          {/* Status filter — custom dropdown */}
+          <DropdownSelect
+            value={status}
+            onChange={handleStatusChange}
+            options={STATUS_FILTERS}
+            placeholder="All statuses"
+          />
         </div>
       </div>
 

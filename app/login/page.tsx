@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { LoginForm } from "./login-form";
@@ -39,7 +40,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <div className="relative w-full max-w-sm">
         {/* Logo + wordmark */}
         <div className="mb-8 flex flex-col items-center gap-3">
-          <RoveLogo />
+          <Image
+            src="/rove-logo.jpg"
+            alt="ROVE"
+            width={56}
+            height={56}
+            className="rounded-xl object-contain"
+            priority
+          />
           <div className="text-center">
             <h1 className="text-xl font-semibold text-text-primary">
               ROVE Hire
@@ -50,8 +58,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         </div>
 
-        {/* Card */}
-        <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
+        {/* Card */}        <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
           <h2 className="mb-5 text-sm font-medium text-text-primary">
             Sign in to your account
           </h2>
@@ -70,27 +77,3 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   );
 }
 
-function RoveLogo() {
-  return (
-    <svg
-      width="40"
-      height="40"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <rect width="24" height="24" rx="6" fill="var(--color-accent)" />
-      <path
-        d="M7 7h4.5a3 3 0 0 1 0 6H7V7Z"
-        fill="white"
-        fillOpacity="0.9"
-      />
-      <path
-        d="M11.5 13 15 17h-2.5L9 13"
-        fill="white"
-        fillOpacity="0.9"
-      />
-    </svg>
-  );
-}

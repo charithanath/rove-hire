@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", ...fontFamily.sans],
+        sans: ["Inter", ...fontFamily.sans],
       },
       colors: {
         // Design tokens — map CSS variables to Tailwind utility classes
@@ -21,9 +21,11 @@ const config: Config = {
         success: "var(--color-success)",
         warning: "var(--color-warning)",
         danger:  "var(--color-danger)",
-        "text-primary": "var(--color-text-primary)",
-        "text-muted":   "var(--color-text-muted)",
-        "text-disabled":"var(--color-text-disabled)",
+        "text-primary":    "var(--color-text-primary)",
+        "text-secondary":  "var(--color-text-secondary)",
+        "text-muted":      "var(--color-text-muted)",
+        "text-disabled":   "var(--color-text-disabled)",
+        "accent-light":    "var(--color-accent-light)",
       },
       borderRadius: {
         sm:  "4px",

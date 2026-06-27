@@ -1,56 +1,28 @@
 import { prisma } from "@/lib/prisma";
 import { startOfWeek, endOfWeek } from "date-fns";
 
-/**
- * All dashboard data fetched in a single file.
- * Each function is a focused Prisma query — called in parallel from the page.
- */
-
-// ── KPI counts ────────────────────────────────────────────────────────────────
+// ── KPI counts — cached for 60s, don't change on filter ───────────────────────
 
 export async function getKpiStats() {
-  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // Monday
-  const weekEnd   = endOfWeek(new Date(),   { weekStartsOn: 1 }); // Sunday
+  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const weekEnd   = endOfWeek(new Date(),   { weekStartsOn: 1 });
 
-  const [
-    openJobs,
-    totalCandidates,
-    interviewsThisWeek,
-    offersSent,
-  ] = await Promise.all([
-    prisma.job.count({ where: { status: "OPEN" } }),
-
-    prisma.candidate.count({
-      where: { status: { not: "REJECTED" } },
-    }),
-
-    prisma.interview.count({
-      where: {
-        scheduledAt: { gte: weekStart, lte: weekEnd },
-      },
-    }),
-
-    prisma.candidate.count({
-      where: { status: { in: ["OFFER_SENT", "HIRED"] } },
-    }),
-  ]);
+  const [openJobs, totalCandidates, interviewsThisWeek, offersSent] =
+    await Promise.all([
+      prisma.job.count({ where: { status: "OPEN" } }),
+      prisma.candidate.count({ where: { status: { not: "REJECTED" } } }),
+      prisma.interview.count({
+        where: { scheduledAt: { gte: weekStart, lte: weekEnd } },
+      }),
+      prisma.candidate.count({
+        where: { status: { in: ["OFFER_SENT", "HIRED"] } },
+      }),
+    ]);
 
   return { openJobs, totalCandidates, interviewsThisWeek, offersSent };
 }
 
-// ── Recent candidates (last 5 added) ─────────────────────────────────────────
-
-export async function getRecentCandidates() {
-  return prisma.candidate.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 5,
-    include: {
-      job: { select: { id: true, title: true, department: true } },
-    },
-  });
-}
-
-// ── Full candidate pipeline (dashboard table — searchable + filterable) ────────
+// ── Full candidate pipeline — always fresh (responds to search/filter) ─────────
 
 export async function getCandidatePipeline(params?: {
   q?: string;
@@ -60,7 +32,9 @@ export async function getCandidatePipeline(params?: {
 
   return prisma.candidate.findMany({
     where: {
-      ...(status ? { status: status as import("@prisma/client").CandidateStatus } : {}),
+      ...(status
+        ? { status: status as import("@prisma/client").CandidateStatus }
+        : {}),
       ...(q
         ? {
             OR: [
@@ -77,7 +51,7 @@ export async function getCandidatePipeline(params?: {
   });
 }
 
-// ── Upcoming interviews (next 5 scheduled) ───────────────────────────────────
+// ── Upcoming interviews — cached for 60s ──────────────────────────────────────
 
 export async function getUpcomingInterviews() {
   return prisma.interview.findMany({
@@ -93,7 +67,7 @@ export async function getUpcomingInterviews() {
   });
 }
 
-// ── Recent activity (last 8 timeline events across all candidates) ────────────
+// ── Recent activity — cached for 60s ─────────────────────────────────────────
 
 export async function getRecentActivity() {
   return prisma.timelineEvent.findMany({
@@ -101,6 +75,18 @@ export async function getRecentActivity() {
     take: 8,
     include: {
       candidate: { select: { id: true, name: true } },
+    },
+  });
+}
+
+// ── Recent candidates (kept for backwards compat) ─────────────────────────────
+
+export async function getRecentCandidates() {
+  return prisma.candidate.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    include: {
+      job: { select: { id: true, title: true, department: true } },
     },
   });
 }

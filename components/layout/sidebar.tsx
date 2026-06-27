@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useTransition } from "react";
 import {
   LayoutDashboard,
   Briefcase,
@@ -12,75 +13,81 @@ import {
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
-// ─────────────────────────────────────────────
-// Nav items
-// ─────────────────────────────────────────────
-
 const NAV_ITEMS = [
-  {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Jobs",
-    href: "/jobs",
-    icon: Briefcase,
-  },
-  {
-    label: "Candidates",
-    href: "/candidates",
-    icon: Users,
-  },
-  {
-    label: "Interviews",
-    href: "/interviews",
-    icon: CalendarDays,
-  },
+  { label: "Dashboard",  href: "/dashboard",  icon: LayoutDashboard },
+  { label: "Candidates", href: "/candidates", icon: Users },
+  { label: "Jobs",       href: "/jobs",       icon: Briefcase },
+  { label: "Interviews", href: "/interviews", icon: CalendarDays },
 ] as const;
 
-// ─────────────────────────────────────────────
-// Sidebar
-// ─────────────────────────────────────────────
-
 interface SidebarProps {
-  userName: string;
+  userName:  string;
   userEmail: string;
 }
 
 export function Sidebar({ userName, userEmail }: SidebarProps) {
   const pathname = usePathname();
+  const router   = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  function navigate(href: string) {
+    startTransition(() => router.push(href));
+  }
 
   return (
-    <aside className="flex h-full w-56 flex-col border-r border-border bg-surface">
-      {/* Logo */}
-      <div className="flex h-14 items-center gap-2.5 px-4 border-b border-border">
-        <RoveLogo />
-        <span className="text-sm font-semibold tracking-tight text-text-primary">
-          ROVE Hire
-        </span>
+    <aside className="flex h-full w-[232px] shrink-0 flex-col border-r border-border bg-surface">
+
+      {/* Brand */}
+      <div className="flex h-[60px] items-center gap-3 border-b border-border px-5">
+        <Image
+          src="/rove-logo.jpg"
+          alt="ROVE"
+          width={28}
+          height={28}
+          className="rounded-[7px] object-contain shrink-0"
+          priority
+        />
+        <div className="min-w-0">
+          <p className="text-[14px] font-bold tracking-tight text-text-primary leading-tight">
+            ROVE Hire
+          </p>
+          <p className="text-[11px] text-text-muted leading-tight">Recruitment</p>
+        </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Main navigation">
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label="Main navigation">
+        {/* Section label */}
+        <p className="px-2 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-text-disabled">
+          Main
+        </p>
         <ul className="flex flex-col gap-0.5" role="list">
           {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
               <li key={href}>
-                <Link
-                  href={href}
+                <button
+                  onClick={() => navigate(href)}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
+                    "group w-full flex items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-[13.5px] font-medium transition-all duration-100",
                     active
-                      ? "bg-accent/10 text-accent font-medium"
+                      ? "bg-[var(--color-accent-light)] text-accent"
                       : "text-text-muted hover:bg-[var(--color-surface-hover)] hover:text-text-primary"
                   )}
                   aria-current={active ? "page" : undefined}
                 >
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <Icon
+                    className={cn(
+                      "h-[16px] w-[16px] shrink-0 transition-colors",
+                      active ? "text-accent" : "text-text-muted group-hover:text-text-primary"
+                    )}
+                    aria-hidden="true"
+                  />
                   {label}
-                </Link>
+                  {pending && active && (
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent/40 animate-pulse" />
+                  )}
+                </button>
               </li>
             );
           })}
@@ -89,22 +96,21 @@ export function Sidebar({ userName, userEmail }: SidebarProps) {
 
       {/* User footer */}
       <div className="border-t border-border p-3">
-        <div className="flex items-center gap-2.5 rounded-md px-2 py-2">
-          {/* Avatar */}
+        <div className="flex items-center gap-2.5 rounded-[7px] px-2 py-2 hover:bg-[var(--color-surface-hover)] transition-colors">
           <div
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-semibold text-accent"
+            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-white"
             aria-hidden="true"
           >
             {getInitials(userName)}
           </div>
-          {/* Info */}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-text-primary">
+            <p className="truncate text-[13px] font-semibold text-text-primary leading-tight">
               {userName}
             </p>
-            <p className="truncate text-xs text-text-muted">{userEmail}</p>
+            <p className="truncate text-[11px] text-text-muted leading-tight mt-0.5">
+              {userEmail}
+            </p>
           </div>
-          {/* Sign out */}
           <SignOutButton />
         </div>
       </div>
@@ -112,22 +118,16 @@ export function Sidebar({ userName, userEmail }: SidebarProps) {
   );
 }
 
-// ─────────────────────────────────────────────
-// Sign-out button
-// Auth.js v5 requires signOut() from next-auth/react on the client.
-// Plain form POST to /api/auth/signout is Auth.js v4 only.
-// ─────────────────────────────────────────────
-
 function SignOutButton() {
   async function handleSignOut() {
-    await signOut({ redirectTo: "/login" });
+    await signOut({ redirect: false });
+    window.location.href = "/login";
   }
-
   return (
     <button
       type="button"
       onClick={handleSignOut}
-      className="flex h-7 w-7 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-[var(--color-surface-hover)] hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      className="flex h-7 w-7 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-red-50 hover:text-danger"
       title="Sign out"
       aria-label="Sign out"
     >
@@ -136,44 +136,6 @@ function SignOutButton() {
   );
 }
 
-// ─────────────────────────────────────────────
-// ROVE logo mark — inline SVG, no external file needed
-// ─────────────────────────────────────────────
-
-function RoveLogo() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <rect width="24" height="24" rx="6" fill="var(--color-accent)" />
-      <path
-        d="M7 7h4.5a3 3 0 0 1 0 6H7V7Z"
-        fill="white"
-        fillOpacity="0.9"
-      />
-      <path
-        d="M11.5 13 15 17h-2.5L9 13"
-        fill="white"
-        fillOpacity="0.9"
-      />
-    </svg>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
-
 function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  return name.split(" ").map((p) => p[0]).join("").toUpperCase().slice(0, 2);
 }

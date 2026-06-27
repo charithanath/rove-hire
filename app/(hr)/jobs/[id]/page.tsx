@@ -8,12 +8,14 @@ import {
   Clock,
   ChevronLeft,
   CalendarDays,
+  ArrowRight,
 } from "lucide-react";
 import { getJob } from "@/lib/jobs";
 import { Badge } from "@/components/ui/badge";
 import { EditJobModal } from "@/components/jobs/edit-job-modal";
 import { JobStatusToggle } from "@/components/jobs/job-status-toggle";
-import { formatDate, EMPLOYMENT_TYPE_LABELS } from "@/lib/utils";
+import { StatusBadge } from "@/components/candidates/status-badge";
+import { formatDate, formatRelative, EMPLOYMENT_TYPE_LABELS } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -126,13 +128,38 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             )}
           </Section>
 
-          {/* Candidates placeholder */}
+          {/* Candidates */}
           <Section title={`Candidates (${job._count.candidates})`}>
-            <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center">
-              <p className="text-sm text-text-muted">
-                Associated candidates will appear here in Milestone 3.
-              </p>
-            </div>
+            {job.candidates.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center">
+                <p className="text-sm text-text-muted">No candidates for this role yet.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border -mx-5 -mb-5 overflow-hidden rounded-b-xl">
+                {job.candidates.map((candidate) => (
+                  <Link
+                    key={candidate.id}
+                    href={`/candidates/${candidate.id}?from=jobs`}
+                    className="group flex items-center gap-3 px-5 py-3 hover:bg-[var(--color-surface-hover)] transition-colors"
+                  >
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/10 text-[11px] font-semibold text-accent">
+                      {candidate.name.split(" ").map((p: string) => p[0]).join("").toUpperCase().slice(0, 2)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-text-primary truncate group-hover:text-accent transition-colors">
+                        {candidate.name}
+                      </p>
+                      <p className="text-xs text-text-muted truncate">{candidate.email}</p>
+                    </div>
+                    <StatusBadge status={candidate.status} />
+                    <p className="hidden sm:block text-xs text-text-muted tabular-nums shrink-0">
+                      {formatRelative(candidate.updatedAt)}
+                    </p>
+                    <ArrowRight className="h-3.5 w-3.5 text-text-disabled opacity-0 group-hover:opacity-100 transition-opacity shrink-0" aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
+            )}
           </Section>
         </div>
 

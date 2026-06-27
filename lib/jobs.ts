@@ -28,8 +28,18 @@ export async function getJob(id: string) {
   return prisma.job.findUnique({
     where: { id },
     include: {
-      _count: { select: { candidates: true } },
+      _count:    { select: { candidates: true } },
       createdBy: { select: { name: true } },
+      candidates: {
+        orderBy: { updatedAt: "desc" },
+        select: {
+          id:        true,
+          name:      true,
+          email:     true,
+          status:    true,
+          updatedAt: true,
+        },
+      },
     },
   });
 }

@@ -4,62 +4,54 @@
 
 @layer base {
   :root {
-    /* Design tokens — light mode */
-    --color-bg:            #F8F9FB;
+    --color-bg:            #F4F5F7;
     --color-surface:       #FFFFFF;
-    --color-surface-hover: #F3F4F6;
-    --color-border:        #E5E7EB;
-    --color-border-subtle: #F0F1F3;
-    --color-text-primary:  #111827;
+    --color-surface-hover: #F8F9FA;
+    --color-border:        #E2E5E9;
+    --color-border-subtle: #ECEEF1;
+    --color-text-primary:  #0D1117;
+    --color-text-secondary:#374151;
     --color-text-muted:    #6B7280;
     --color-text-disabled: #9CA3AF;
-    --color-accent:        #6C63FF;
-    --color-accent-hover:  #5A52E0;
+    --color-accent:        #2563EB;
+    --color-accent-hover:  #1D4ED8;
+    --color-accent-light:  #EFF6FF;
     --color-success:       #16A34A;
     --color-warning:       #D97706;
     --color-danger:        #DC2626;
   }
 
-  * {
-    border-color: var(--color-border);
-  }
+  * { border-color: var(--color-border); }
 
   body {
     background-color: var(--color-bg);
     color: var(--color-text-primary);
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  /* Remove browser autofill background */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 9999px var(--color-surface) inset !important;
+    box-shadow: 0 0 0 9999px var(--color-surface) inset !important;
+    -webkit-text-fill-color: var(--color-text-primary) !important;
+    caret-color: var(--color-text-primary);
   }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-text-disabled);
-  }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-text-disabled); }
 }
 
 @layer utilities {
-  .text-muted {
-    color: var(--color-text-muted);
-  }
-
-  .bg-surface {
-    background-color: var(--color-surface);
-  }
-
-  .border-subtle {
-    border-color: var(--color-border-subtle);
-  }
+  .text-muted     { color: var(--color-text-muted); }
+  .text-secondary { color: var(--color-text-secondary); }
+  .bg-surface     { background-color: var(--color-surface); }
+  .border-subtle  { border-color: var(--color-border-subtle); }
 }

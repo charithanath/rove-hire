@@ -44,7 +44,6 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 focus:ring-offset-bg",
               "disabled:cursor-not-allowed disabled:opacity-50",
               "transition-colors cursor-pointer",
-              !props.value && "text-text-disabled",
               error && "border-danger focus:ring-danger",
               className
             )}
